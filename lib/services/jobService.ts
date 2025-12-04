@@ -12,7 +12,14 @@ export type SearchInput = {
 };
 
 export async function searchJobs(input: SearchInput) {
-  const { role, location, platform = "all", experience, jobType, skills } = input;
+  const {
+    role,
+    location,
+    platform = "all",
+    experience,
+    jobType,
+    skills,
+  } = input;
   let jobs: any[] = [];
 
   if (platform === "indeed" || platform === "all") {
@@ -27,16 +34,22 @@ export async function searchJobs(input: SearchInput) {
 
   // filters (kept same behavior)
   if (experience) {
-    jobs = jobs.filter((j) => j.experience?.toLowerCase().includes(experience.toLowerCase()));
+    jobs = jobs.filter((j) =>
+      j.experience?.toLowerCase().includes(experience.toLowerCase())
+    );
   }
 
   if (jobType) {
-    jobs = jobs.filter((j) => j.jobType?.toLowerCase() === jobType.toLowerCase());
+    jobs = jobs.filter(
+      (j) => j.jobType?.toLowerCase() === jobType.toLowerCase()
+    );
   }
 
   if (skills && skills.length > 0) {
     jobs = jobs.filter((j) =>
-      skills.some((skill) => j.description?.toLowerCase().includes(skill.toLowerCase()))
+      skills.some((skill) =>
+        j.description?.toLowerCase().includes(skill.toLowerCase())
+      )
     );
   }
 
