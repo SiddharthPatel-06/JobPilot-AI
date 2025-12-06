@@ -8,9 +8,9 @@ import { log } from "../../../../../lib/utils/logger";
 function calculateMatchScore(job: any, profile: any, roles: string[]) {
   let score = 0;
 
-  if (profile.skills?.length > 0 && job.description) {
-    const jobDesc = job.description.toLowerCase();
+  const jobDesc = job.description?.toLowerCase() || "";
 
+  if (profile.skills?.length > 0) {
     profile.skills.forEach((skill: string) => {
       if (jobDesc.includes(skill.toLowerCase())) {
         score += 20;
@@ -18,29 +18,26 @@ function calculateMatchScore(job: any, profile: any, roles: string[]) {
     });
   }
 
-  if (job.title) {
-    const title = job.title.toLowerCase();
+  const title = job.title?.toLowerCase() || "";
 
-    roles.forEach((role) => {
-      if (title.includes(role.toLowerCase())) {
-        score += 25;
-      }
-    });
-  }
-
-  if (profile.location && job.location) {
-    if (job.location.toLowerCase().includes(profile.location.toLowerCase())) {
-      score += 15;
+  roles.forEach((role) => {
+    if (title.includes(role.toLowerCase())) {
+      score += 25;
     }
+  });
+
+  const jobLoc = job.location?.toLowerCase() || "";
+  const userLoc = profile.location?.toLowerCase() || "";
+
+  if (jobLoc.includes(userLoc)) {
+    score += 15;
   }
 
-  if (profile.experience?.length > 0 && job.experience) {
-    const userExp = profile.experience.length;
-    const jobExp = job.experience.toLowerCase();
+  const jobExp = job.experience?.toLowerCase() || "";
+  const userExp = profile.experience?.length || 0;
 
-    if (jobExp.includes("fresher") && userExp <= 1) score += 10;
-    if (jobExp.includes("1 year") && userExp >= 1) score += 10;
-  }
+  if (jobExp.includes("fresher") && userExp <= 1) score += 10;
+  if (jobExp.includes("1 year") && userExp >= 1) score += 10;
 
   return score;
 }
@@ -83,6 +80,7 @@ export async function POST(req: NextRequest) {
       matchScore: calculateMatchScore(job, profile, roleList),
     }));
 
+    // Highest score → first
     scoredJobs.sort((a, b) => b.matchScore - a.matchScore);
 
     log("JOB_MATCH", "Job scoring completed", null, "INFO");
